@@ -1,3 +1,7 @@
+// ----------------------------
+// 공통 Result / Error 모델
+// ----------------------------
+
 // 에러 코드 타입 정의
 // VALIDATION: 입력 문제
 // NETWORK: 서버 도달 실패
@@ -6,7 +10,18 @@ export type ApiErrorCode = "VALIDATION" | "NETWORK" | "HTTP";
 
 // 에러 객체의 형태 정의
 // status는 HTTP 에러일 때만 존재하므로 optional(?)
-export type ApiError = { code: ApiErrorCode; message: string; status?: number };
+export type ApiError = {
+  code: ApiErrorCode;
+  message: string;
+  status?: number;
+};
+
+// api 반환 타입, 성공이면 data, 실패하면 error담은 객체 반환
+export type Result<T> = { ok: true; data: T } | { ok: false; error: ApiError };
+
+// ----------------------------
+// GitHub Search API DTO
+// ----------------------------
 
 /* GitHub Search API 응답 DTO (필요한 부분만) */
 export type SearchReposResponseDTO = {
@@ -15,7 +30,7 @@ export type SearchReposResponseDTO = {
   items: GithubRepoDTO[];
 };
 
-/*  GitHub Search API가 내려주는 repo의 "우리가 쓰는 필드만" 최소 DTO */
+/* GitHub Search API items(repo) 최소 DTO */
 export type GithubRepoDTO = {
   id: number;
 
@@ -41,7 +56,17 @@ export type GithubRepoDTO = {
   // text_matches?: Array<{ fragment: string; matches: Array<{ text: string; indices: [number, number] }> }>;
 };
 
-// UI에서 사용할 정규화된 Repo 타입
+// ----------------------------
+// UI에서 쓸 정규화 모델
+// ----------------------------
+
+// searchRepos API가 UI에 돌려줄 최종 형태
+export type SearchReposResult = {
+  repos: Repo[];
+  totalCount: number;
+  incomplete: boolean;
+};
+
 export type Repo = {
   id: number;
 

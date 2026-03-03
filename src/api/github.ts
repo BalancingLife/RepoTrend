@@ -3,22 +3,12 @@ import type {
   SearchReposResponseDTO,
   GithubRepoDTO,
   ApiError,
+  Result,
+  SearchReposResult,
 } from "../types/github";
 
 // GitHub API 기본 URL
 const BASE_URL = "https://api.github.com";
-
-// Result 패턴 정의
-// 성공이면 ok: true + data
-// 실패면 ok: false + error
-export type Result<T> = { ok: true; data: T } | { ok: false; error: ApiError };
-
-// searchRepos가 UI에 돌려줄 최종 형태
-export type SearchReposResult = {
-  repos: Repo[];
-  totalCount: number;
-  incomplete: boolean;
-};
 
 // DTO -> Repo 변환 (정규화)
 function toRepo(dto: GithubRepoDTO): Repo {
@@ -91,7 +81,11 @@ export async function searchRepos(
       // HTTP 실패를 Result 형태로 반환
       return {
         ok: false,
-        error: { code: "HTTP", message, status: response.status },
+        error: {
+          code: "HTTP",
+          message,
+          status: response.status,
+        } satisfies ApiError,
       };
     }
 
@@ -117,7 +111,7 @@ export async function searchRepos(
       error: {
         code: "NETWORK",
         message: "네트워크 오류가 발생했습니다.",
-      },
+      } satisfies ApiError,
     };
   }
 }
