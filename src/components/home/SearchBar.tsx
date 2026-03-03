@@ -1,9 +1,10 @@
+import React from "react";
 import styles from "./SearchBar.module.css";
 
 type Props = {
   value: string;
   onChange: (next: string) => void;
-  onSubmit: () => void;
+  onSubmit: () => void | Promise<void>;
   disabled?: boolean;
 };
 

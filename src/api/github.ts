@@ -31,31 +31,43 @@ function toRepo(dto: GithubRepoDTO): Repo {
   };
 }
 
+// SearchRepos 함수 파라미터 타입
+export type SearchReposParams = {
+  keyword: string;
+  page: number;
+  perPage: number;
+  sort?: "stars" | "forks" | "updated";
+  order?: "desc" | "asc";
+};
+
 // GitHub 레포 검색 함수
 // Promise<Result<SearchReposResponse>> 구조를 사용
 export async function searchRepos(
-  keyword: string,
+  params: SearchReposParams,
 ): Promise<Result<SearchReposResult>> {
   // 입력값 공백 제거
-  const trimmed = keyword.trim();
+  const trimmed = params.keyword.trim();
 
   // 검색어가 비어있으면 네트워크 요청을 보내지 않고 즉시 VALIDATION 실패 반환
   if (!trimmed) {
     return {
       ok: false,
-      error: { code: "VALIDATION", message: "검색어를 입력해줘." },
+      error: { code: "VALIDATION", message: "검색어를 입력해주세요." },
     };
   }
 
   // 쿼리 파라미터를 안전하게 구성
-  const params = new URLSearchParams({
+  const searchParams = new URLSearchParams({
     q: trimmed,
-    page: "1",
-    per_page: "10",
+    page: String(params.page),
+    per_page: String(params.perPage),
   });
 
+  if (params.sort) searchParams.set("sort", params.sort);
+  if (params.order) searchParams.set("order", params.order);
+
   // 최종 URL 구성
-  const url = `${BASE_URL}/search/repositories?${params.toString()}`;
+  const url = `${BASE_URL}/search/repositories?${searchParams.toString()}`;
 
   try {
     // GitHub API 호출

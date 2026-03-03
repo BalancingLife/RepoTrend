@@ -7,6 +7,7 @@
 .content {
   width: 100%;
   max-width: 1000px;
+  min-height: 100vh;
   margin: 0 auto;
 
   display: flex;
@@ -70,4 +71,14 @@
 .resultsSection {
   border-top: 1px solid #e8edf4;
   padding-top: 14px;
+}
+
+.sentinel {
+  height: 1px;
+}
+
+.loadMoreHint {
+  padding: 16px 0;
+  text-align: center;
+  opacity: 0.7;
 }
