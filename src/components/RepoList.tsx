@@ -1,6 +1,6 @@
+import styles from "./RepoList.module.css";
 import type { Repo } from "../types/github";
 import type { ApiError } from "../types/github";
-
 import RepoCard from "./RepoCard";
 
 type Props = {
@@ -16,35 +16,28 @@ export default function RepoList({
   error,
   hasSearched,
 }: Props) {
-  // 1) 로딩
-  if (isLoading) {
-    return <p>로딩중...</p>;
-  }
+  if (isLoading) return <p className={styles.state}>로딩중...</p>;
 
-  // 2) 에러
   if (error) {
     return (
-      <p>
+      <p className={styles.stateError}>
         [{error.code}] {error.message}
         {error.status ? ` (status: ${error.status})` : ""}
       </p>
     );
   }
 
-  // 3) 빈 상태 (검색을 했고, 받아온 repo가 없을 때)
   if (hasSearched && repos.length === 0) {
-    return <p>검색 결과가 없습니다.</p>;
+    return <p className={styles.state}>검색 결과가 없습니다.</p>;
   }
 
   return (
-    <>
-      <ul>
-        {repos.map((repo) => (
-          <li key={repo.id}>
-            <RepoCard repo={repo} />
-          </li>
-        ))}
-      </ul>
-    </>
+    <ul className={styles.list}>
+      {repos.map((repo) => (
+        <li key={repo.id} className={styles.item}>
+          <RepoCard repo={repo} />
+        </li>
+      ))}
+    </ul>
   );
 }

@@ -32,20 +32,45 @@ const HomePage = () => {
 
   return (
     <div className={styles.container}>
-      {/* 검색창 */}
-      <SearchBar
-        value={keyword}
-        onChange={setKeyword}
-        onSubmit={handleSearch}
-        disabled={isLoading}
-      />
+      <div className={styles.content}>
+        <header className={styles.brand}>
+          <a
+            href="/"
+            className={styles.brandLink}
+            aria-label="RepoTrend 홈으로"
+          >
+            <img
+              src="/images/RepoTrend-logo.png"
+              width="100"
+              height="100"
+              alt="RepoTrend 로고"
+              className={styles.brandLogo}
+            />
+            <div className={styles.brandText}>
+              <span className={styles.brandName}>RepoTrend</span>
+              <span className={styles.brandSubtitle}>
+                GitHub repo trends by keyword
+              </span>
+            </div>
+          </a>
+        </header>
 
-      <RepoList
-        repos={repos}
-        isLoading={isLoading}
-        error={error}
-        hasSearched={hasSearched}
-      />
+        <main className={styles.bodyArea}>
+          <SearchBar
+            value={keyword}
+            onChange={setKeyword}
+            onSubmit={handleSearch}
+            disabled={isLoading}
+          />
+
+          <RepoList
+            repos={repos}
+            isLoading={isLoading}
+            error={error}
+            hasSearched={hasSearched}
+          />
+        </main>
+      </div>
     </div>
   );
 };

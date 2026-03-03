@@ -1,3 +1,5 @@
+import styles from "./SearchBar.module.css";
+
 type Props = {
   value: string;
   onChange: (next: string) => void;
@@ -11,17 +13,25 @@ export default function SearchBar({
   onSubmit,
   disabled,
 }: Props) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (disabled) return;
+    onSubmit();
+  }
+
   return (
-    <div>
+    <form className={styles.searchBar} onSubmit={handleSubmit}>
       <input
+        className={styles.input}
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="찾고자 하는 레포지토리의 키워드를 입력해주세요."
+        disabled={disabled}
       />
-      <button onClick={onSubmit} disabled={disabled}>
+      <button className={styles.button} type="submit" disabled={disabled}>
         {disabled ? "검색중..." : "검색"}
       </button>
-    </div>
+    </form>
   );
 }

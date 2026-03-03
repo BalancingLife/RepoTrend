@@ -1,0 +1,29 @@
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item {
+  margin: 0;
+}
+
+.state {
+  margin: 12px 0;
+  color: #556274;
+  font-size: 14px;
+}
+
+.stateError {
+  margin: 12px 0;
+  color: #b42318;
+  font-size: 14px;
+  background: #fff1f1;
+  border: 1px solid #ffd1d1;
+  padding: 10px 12px;
+  border-radius: 12px;
+}

@@ -1,0 +1,55 @@
+.card {
+  padding: 16px 16px;
+  border-radius: 16px;
+
+  background-color: #ffffff;
+  border: 1px solid #e3e8ef;
+
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    border-color 120ms ease;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  border-color: #d1dbe7;
+  box-shadow: 0 14px 30px rgba(10, 20, 30, 0.08);
+}
+
+.title {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+
+  color: #0b1220;
+  text-decoration: none;
+}
+
+.title:hover {
+  text-decoration: underline;
+}
+
+.meta {
+  margin-top: 10px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  font-size: 13px;
+  color: #556274;
+}
+
+.desc {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #334155;
+
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 너무 길면 2줄에서 자름 */
+  -webkit-box-orient: vertical;
+}
