@@ -2,6 +2,7 @@ import { useState } from "react";
 import styles from "./HomePage.module.css";
 import { searchRepos } from "../api/github";
 import type { Repo, ApiError } from "../types/github";
+import SearchBar from "../components/home/SearchBar";
 
 const HomePage = () => {
   const [keyword, setKeyword] = useState<string>("");
@@ -15,25 +16,6 @@ const HomePage = () => {
 
     const res = await searchRepos(keyword);
 
-    // 성공시
-    // return {
-    //   ok: true,
-    //   data: {
-    //     repos,
-    //     totalCount: typeof json.total_count === "number" ? json.total_count : 0,
-    //     incomplete: Boolean(json.incomplete_results),
-    //   },
-    // };
-
-    // 실패시
-    // return {
-    //   ok: false,
-    //   error: {
-    //     code: "NETWORK",
-    //     message: "네트워크 오류가 발생했습니다.",
-    //   },
-    // };
-
     if (res.ok) {
       setRepos(res.data.repos);
     } else {
@@ -46,17 +28,12 @@ const HomePage = () => {
   return (
     <div className={styles.container}>
       {/* 검색창 */}
-      <div>
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="찾고자 하는 레포지토리의 키워드를 입력해주세요."
-        />
-        <button onClick={handleSearch} disabled={isLoading}>
-          {isLoading ? "검색중..." : "검색"}
-        </button>
-      </div>
+      <SearchBar
+        value={keyword}
+        onChange={setKeyword}
+        onSubmit={handleSearch}
+        disabled={isLoading}
+      />
 
       {/* 에러 */}
       {error && (
