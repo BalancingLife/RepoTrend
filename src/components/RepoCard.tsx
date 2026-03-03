@@ -1,24 +1,5 @@
 import type { Repo } from "../types/github";
 
-// export type Repo = {
-//   id: number;
-
-//   name: string; // full_name
-//   url: string; // html_url
-//   description: string | null;
-
-//   stars: number; // stargazers_count
-//   forks: number; // forks_count
-//   openIssues: number; // open_issues_count
-
-//   language: string | null;
-
-//   pushedAt: string; // pushed_at
-
-//   ownerLogin: string;
-//   ownerAvatarUrl: string;
-// };
-
 type Props = { repo: Repo };
 const RepoCard = ({ repo }: Props) => {
   return (

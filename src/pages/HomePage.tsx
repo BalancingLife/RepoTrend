@@ -10,11 +10,18 @@ const HomePage = () => {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<ApiError | null>(null);
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
 
   async function handleSearch() {
+    const trimmed = keyword.trim();
+    if (!trimmed) return;
+
+    setHasSearched(true);
     setIsLoading(true);
     setError(null);
+
     const res = await searchRepos(keyword);
+
     if (res.ok) {
       setRepos(res.data.repos);
     } else {
@@ -33,12 +40,12 @@ const HomePage = () => {
         disabled={isLoading}
       />
 
-      <RepoList repos={repos} />
-
-      {/* 빈 상태 */}
-      {!isLoading && !error && repos.length === 0 && keyword.trim() !== "" && (
-        <p>검색 결과가 없습니다.</p>
-      )}
+      <RepoList
+        repos={repos}
+        isLoading={isLoading}
+        error={error}
+        hasSearched={hasSearched}
+      />
     </div>
   );
 };
