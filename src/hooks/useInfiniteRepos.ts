@@ -5,7 +5,7 @@ import { searchRepos } from "../api/github";
 type Status = "idle" | "loading" | "error";
 
 type UseInfiniteReposParams = {
-  keyword: string;
+  searchQuery: string;
   perPage: number;
   sort?: "stars" | "forks" | "updated";
   order?: "desc" | "asc";
@@ -96,7 +96,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 export function useInfiniteRepos({
-  keyword,
+  searchQuery,
   perPage,
   sort,
   order,
@@ -120,7 +120,7 @@ export function useInfiniteRepos({
       if (statusRef.current === "loading") return;
       if (!hasNextRef.current && mode === "append") return;
 
-      const trimmed = keyword.trim();
+      const trimmed = searchQuery.trim();
       if (!trimmed) {
         dispatch({ type: "RESET" });
         return;
@@ -130,7 +130,7 @@ export function useInfiniteRepos({
 
       dispatch({ type: "LOAD_START", mode });
       const result = await searchRepos({
-        keyword: trimmed,
+        searchQuery: trimmed,
         page: targetPage,
         perPage,
         sort,
@@ -153,18 +153,18 @@ export function useInfiniteRepos({
         totalCount: result.data.totalCount,
       });
     },
-    [keyword, perPage, sort, order], // ✅ state 의존성 제거됨
+    [searchQuery, perPage, sort, order], // ✅ state 의존성 제거됨
   );
 
   useEffect(() => {
     queryKeyRef.current += 1;
     dispatch({ type: "RESET" });
 
-    // keyword 비었으면 여기서 끝내도 됨(불필요 호출 방지)
-    if (!keyword.trim()) return;
+    // searchQuery 비었으면 여기서 끝내도 됨(불필요 호출 방지)
+    if (!searchQuery.trim()) return;
 
     void loadPage(1, "replace");
-  }, [keyword, sort, order, loadPage]);
+  }, [searchQuery, sort, order, loadPage]);
 
   const loadMore = useCallback(() => {
     void loadPage(state.page, "append");

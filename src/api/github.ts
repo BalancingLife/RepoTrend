@@ -33,7 +33,7 @@ function toRepo(dto: GithubRepoDTO): Repo {
 
 // SearchRepos 함수 파라미터 타입
 export type SearchReposParams = {
-  keyword: string;
+  searchQuery: string;
   page: number;
   perPage: number;
   sort?: "stars" | "forks" | "updated";
@@ -46,7 +46,7 @@ export async function searchRepos(
   params: SearchReposParams,
 ): Promise<Result<SearchReposResult>> {
   // 입력값 공백 제거
-  const trimmed = params.keyword.trim();
+  const trimmed = params.searchQuery.trim();
 
   // 검색어가 비어있으면 네트워크 요청을 보내지 않고 즉시 VALIDATION 실패 반환
   if (!trimmed) {

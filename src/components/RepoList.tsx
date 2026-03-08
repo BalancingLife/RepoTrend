@@ -7,14 +7,14 @@ type Props = {
   repos: Repo[];
   isLoading: boolean;
   error: ApiError | null;
-  hasSearched: boolean;
+  isSearchSubmitted: boolean;
 };
 
 export default function RepoList({
   repos,
   isLoading,
   error,
-  hasSearched,
+  isSearchSubmitted,
 }: Props) {
   if (isLoading) return <p className={styles.state}>로딩중...</p>;
 
@@ -27,7 +27,7 @@ export default function RepoList({
     );
   }
 
-  if (hasSearched && repos.length === 0) {
+  if (isSearchSubmitted && repos.length === 0) {
     return <p className={styles.state}>검색 결과가 없습니다.</p>;
   }
 
