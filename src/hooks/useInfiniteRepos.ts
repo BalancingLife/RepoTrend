@@ -3,6 +3,7 @@ import type { Repo } from "../types/github";
 import { searchRepos } from "../api/github";
 
 type Status = "idle" | "loading" | "error";
+type LoadMode = "replace" | "append";
 
 type UseInfiniteReposParams = {
   searchQuery: string;
@@ -18,23 +19,8 @@ type State = {
   status: Status;
   errorMsg: string | null;
   isLoadingMore: boolean;
-
-  totalCount: number;
-  loadedCount: number;
+  lastLoadMode: LoadMode | null;
 };
-
-type Action =
-  | { type: "RESET" }
-  | { type: "LOAD_START"; mode: "replace" | "append" }
-  | {
-      type: "LOAD_SUCCESS";
-      mode: "replace" | "append";
-      repos: Repo[];
-      perPage: number;
-      loadedPage: number;
-      totalCount: number;
-    }
-  | { type: "LOAD_ERROR"; message: string };
 
 const initialState: State = {
   repos: [],
@@ -43,9 +29,20 @@ const initialState: State = {
   status: "idle",
   errorMsg: null,
   isLoadingMore: false,
-  totalCount: 0,
-  loadedCount: 0,
+  lastLoadMode: null,
 };
+
+type Action =
+  | { type: "RESET" }
+  | { type: "LOAD_START"; mode: LoadMode }
+  | {
+      type: "LOAD_SUCCESS";
+      mode: LoadMode;
+      repos: Repo[];
+      loadedPage: number;
+      totalCount: number;
+    }
+  | { type: "LOAD_ERROR"; message: string };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -58,6 +55,7 @@ function reducer(state: State, action: Action): State {
         status: "loading",
         errorMsg: null,
         isLoadingMore: action.mode === "append",
+        lastLoadMode: action.mode,
       };
 
     case "LOAD_SUCCESS": {
@@ -66,11 +64,7 @@ function reducer(state: State, action: Action): State {
           ? action.repos
           : [...state.repos, ...action.repos];
 
-      const loadedCount = nextRepos.length;
-      const totalCount = action.totalCount;
-
-      // totalCount 기반 hasNext
-      const hasNext = loadedCount < totalCount;
+      const hasNext = nextRepos.length < action.totalCount;
 
       return {
         ...state,
@@ -95,6 +89,9 @@ function reducer(state: State, action: Action): State {
       return state;
   }
 }
+
+// ------------------------------------------------------------
+
 export function useInfiniteRepos({
   searchQuery,
   perPage,
@@ -105,7 +102,6 @@ export function useInfiniteRepos({
 
   const queryKeyRef = useRef(0);
 
-  // ✅ 최신 state를 ref로 보관해서 loadPage deps에서 state 제거
   const statusRef = useRef<Status>(state.status);
   const hasNextRef = useRef<boolean>(state.hasNext);
 
@@ -115,29 +111,30 @@ export function useInfiniteRepos({
   }, [state.status, state.hasNext]);
 
   const loadPage = useCallback(
-    async (targetPage: number, mode: "replace" | "append") => {
-      // ✅ ref 기반 가드
+    async (targetPage: number, mode: LoadMode) => {
       if (statusRef.current === "loading") return;
       if (!hasNextRef.current && mode === "append") return;
 
-      const trimmed = searchQuery.trim();
-      if (!trimmed) {
+      const trimmedQuery = searchQuery.trim();
+
+      if (!trimmedQuery) {
         dispatch({ type: "RESET" });
         return;
       }
 
-      const myKey = queryKeyRef.current;
+      const requestKey = queryKeyRef.current;
 
       dispatch({ type: "LOAD_START", mode });
+
       const result = await searchRepos({
-        searchQuery: trimmed,
+        searchQuery: trimmedQuery,
         page: targetPage,
         perPage,
         sort,
         order,
       });
 
-      if (queryKeyRef.current !== myKey) return;
+      if (queryKeyRef.current !== requestKey) return;
 
       if (!result.ok) {
         dispatch({ type: "LOAD_ERROR", message: result.error.message });
@@ -148,34 +145,34 @@ export function useInfiniteRepos({
         type: "LOAD_SUCCESS",
         mode,
         repos: result.data.repos,
-        perPage,
         loadedPage: targetPage,
         totalCount: result.data.totalCount,
       });
     },
-    [searchQuery, perPage, sort, order], // ✅ state 의존성 제거됨
+    [searchQuery, perPage, sort, order],
   );
 
   useEffect(() => {
     queryKeyRef.current += 1;
     dispatch({ type: "RESET" });
 
-    // searchQuery 비었으면 여기서 끝내도 됨(불필요 호출 방지)
     if (!searchQuery.trim()) return;
 
     void loadPage(1, "replace");
-  }, [searchQuery, sort, order, loadPage]);
+  }, [searchQuery, perPage, sort, order, loadPage]);
 
   const loadMore = useCallback(() => {
     void loadPage(state.page, "append");
   }, [loadPage, state.page]);
 
   const retry = useCallback(() => {
-    void loadPage(
-      state.repos.length === 0 ? 1 : state.page,
-      state.repos.length === 0 ? "replace" : "append",
-    );
-  }, [loadPage, state.page, state.repos.length]);
+    if (state.lastLoadMode === "append") {
+      void loadPage(state.page, "append");
+      return;
+    }
+
+    void loadPage(1, "replace");
+  }, [loadPage, state.lastLoadMode, state.page]);
 
   return {
     repos: state.repos,
